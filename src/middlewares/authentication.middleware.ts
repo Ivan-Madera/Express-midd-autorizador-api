@@ -90,16 +90,9 @@ export const checkBearer = (req: any, res: any, next: any): any => {
 
     const token = auth.slice(7)
 
-    verify(token, secret, (error: any) => {
-      if (error) {
-        status = Codes.unauthorized
-        throw new ErrorException(
-          validationErrors.INVALID_TOKEN,
-          status,
-          'The token is invalid or has expired.'
-        )
-      }
-    })
+    const payload = verify(token, secret) as any
+    req.user_id = payload.uid
+    req.session_id = payload.sid
 
     return next()
   } catch (error) {
