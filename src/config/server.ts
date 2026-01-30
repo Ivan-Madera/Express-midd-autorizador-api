@@ -3,14 +3,13 @@ import cors from 'cors'
 import helmet from 'helmet'
 import swaggerUI from 'swagger-ui-express'
 import swaggerJSDoc from 'swagger-jsdoc'
-import { Diaries } from '../routes/diaries.routes'
-import { Users } from '../routes/users.routes'
 import { sequelize } from '../database/config'
 import { LogInfo } from '../utils/logger'
 import { baseRoute, headerNoCache } from '../middlewares/shared.middleware'
 import { helmetContentSecurityPolicy, helmetTransportSecurity } from './helmet'
 import { custom, options } from './swagger'
 import env from './callEnv'
+import { Auth } from '../routes/auth.routes'
 
 class Server {
   public app: Application
@@ -56,8 +55,7 @@ class Server {
   }
 
   private configureRoutes(): void {
-    this.app.use(this.pathV1, Diaries)
-    this.app.use(this.pathV1, Users)
+    this.app.use(this.pathV1, Auth)
   }
 
   public listen(): void {

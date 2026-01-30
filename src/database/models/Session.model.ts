@@ -1,13 +1,15 @@
 import { DataTypes, type Model, type Optional } from 'sequelize'
 import { sequelize } from '../config'
+import User from './User.model'
 
 interface SessionAttributes {
   id: number
+  user_id: number
   refresh_token_hash: string
   device_id: string
   device_type: string
-  ip: string
-  user_agent: string
+  ip: string | null
+  user_agent: string | null
   expires_at: Date
   revoked_at: Date
 }
@@ -27,6 +29,10 @@ const Session = sequelize.define<SessionInstance>('sessions', {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
   },
   refresh_token_hash: {
     type: DataTypes.STRING,
@@ -54,5 +60,8 @@ const Session = sequelize.define<SessionInstance>('sessions', {
     type: DataTypes.DATE
   }
 })
+
+User.hasMany(Session, { foreignKey: 'user_id' })
+Session.belongsTo(User, { foreignKey: 'user_id' })
 
 export default Session
