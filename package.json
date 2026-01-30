@@ -8,6 +8,7 @@
     "start": "node build/app.js",
     "dev": "ts-node-dev app.ts",
     "jest": "npx jest",
+    "prettier": "npx prettier --write .",
     "new:migration": "npx sequelize-cli migration:generate --name migration-skeleton",
     "new:seeder": "npx sequelize-cli seed:generate --name seeder-skeleton",
     "migrate": "npx sequelize-cli db:migrate",
