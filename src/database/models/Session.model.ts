@@ -24,45 +24,49 @@ export interface SessionInstance
     Model<SessionAttributes, SessionCreationAttributes>,
     SessionAttributes {}
 
-const Session = sequelize.define<SessionInstance>('sessions', {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
+const Session = sequelize.define<SessionInstance>(
+  'sessions',
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    refresh_token_hash: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false
+    },
+    device_id: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    device_type: {
+      type: DataTypes.STRING
+    },
+    ip: {
+      type: DataTypes.STRING
+    },
+    user_agent: {
+      type: DataTypes.STRING
+    },
+    expires_at: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    revoked_at: {
+      type: DataTypes.DATE
+    }
   },
-  user_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  refresh_token_hash: {
-    type: DataTypes.STRING,
-    unique: true,
-    allowNull: false
-  },
-  device_id: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  device_type: {
-    type: DataTypes.STRING
-  },
-  ip: {
-    type: DataTypes.STRING
-  },
-  user_agent: {
-    type: DataTypes.STRING
-  },
-  expires_at: {
-    type: DataTypes.DATE,
-    allowNull: false
-  },
-  revoked_at: {
-    type: DataTypes.DATE
+  {
+    tableName: 'sessions',
+    timestamps: false
   }
-}, {
-  tableName: 'sessions',
-  timestamps: false
-})
+)
 
 User.hasMany(Session, { foreignKey: 'user_id' })
 Session.belongsTo(User, { foreignKey: 'user_id' })

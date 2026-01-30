@@ -1,5 +1,4 @@
-import Session, { SessionInstance } from "../../database/models/Session.model"
-
+import Session, { SessionInstance } from '../../database/models/Session.model'
 
 export const findOneSession = async (
   refresh_token_hash: string,

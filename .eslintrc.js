@@ -39,9 +39,9 @@ module.exports = {
     // '@typescript-eslint/naming-convention': 'off',
     // '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-misused-promises': [
-      "error",
+      'error',
       {
-        "checksVoidReturn": false
+        checksVoidReturn: false
       }
     ]
   }

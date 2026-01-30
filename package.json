@@ -4,7 +4,7 @@
   "description": "Template de NodeJS para desarrollos cortos y sencillos implementando las respuestas con jsonapi",
   "main": "./app.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node build/app.js",
     "dev": "ts-node-dev app.ts",
     "jest": "npx jest",

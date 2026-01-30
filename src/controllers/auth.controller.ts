@@ -1,7 +1,13 @@
 import { Handler } from 'express'
 import { Codes } from '../utils/codeStatus'
 import { JsonApiResponseError } from '../utils/jsonApiResponses'
-import { loginService, logoutAllService, logoutService, refreshTokenService, registerService } from '../services/auth.service'
+import {
+  loginService,
+  logoutAllService,
+  logoutService,
+  refreshTokenService,
+  registerService
+} from '../services/auth.service'
 
 export const login: Handler = async (req, res) => {
   const url = req.originalUrl
@@ -19,7 +25,15 @@ export const login: Handler = async (req, res) => {
 
     const { email, password, device_id, device_type } = attributes
 
-    const authResponse = await loginService(url, email, password, device_id, device_type, ip, userAgent)
+    const authResponse = await loginService(
+      url,
+      email,
+      password,
+      device_id,
+      device_type,
+      ip,
+      userAgent
+    )
 
     status = authResponse.status
     return res.status(status).json(authResponse.response)
@@ -42,7 +56,12 @@ export const refreshToken: Handler = async (req, res) => {
     const ip = req.ip ?? null
     const userAgent = req.get('user-agent') ?? null
 
-    const authResponse = await refreshTokenService(url, attributes.refresh_token, ip, userAgent)
+    const authResponse = await refreshTokenService(
+      url,
+      attributes.refresh_token,
+      ip,
+      userAgent
+    )
 
     status = authResponse.status
     return res.status(status).json(authResponse.response)

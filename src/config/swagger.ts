@@ -6,7 +6,8 @@ export const options = {
     info: {
       title: 'Midd Autorizador API',
       version: '1.0.0',
-      description: 'Middleware de autorización para validación de permisos y seguridad'
+      description:
+        'Middleware de autorización para validación de permisos y seguridad'
     },
     license: {
       name: 'MIT License',
