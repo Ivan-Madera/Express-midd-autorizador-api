@@ -59,6 +59,9 @@ const Session = sequelize.define<SessionInstance>('sessions', {
   revoked_at: {
     type: DataTypes.DATE
   }
+}, {
+  tableName: 'sessions',
+  timestamps: false
 })
 
 User.hasMany(Session, { foreignKey: 'user_id' })

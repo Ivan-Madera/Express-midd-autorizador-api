@@ -185,7 +185,7 @@ export const logoutAll: Handler = async (req, res) => {
     await Session.destroy({ where: { user_id } })
 
     status = Codes.success
-    return res.status(status).json({ message: '' })
+    return res.status(status).json({ message: 'All sessions closed successfully' })
   } catch (error) {
     return res.status(status).json(JsonApiResponseError(error, url))
   }

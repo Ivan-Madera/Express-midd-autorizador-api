@@ -30,6 +30,9 @@ const User = sequelize.define<UserInstance>('users', {
     type: DataTypes.STRING,
     allowNull: false
   }
+}, {
+  tableName: 'users',
+  timestamps: false
 })
 
 export default User

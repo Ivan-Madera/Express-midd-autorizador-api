@@ -28,7 +28,7 @@ const router = Router()
  * @swagger
  * /api/v1/login:
  *   post:
- *     tags: ["[V1] Users"]
+ *     tags: ["[V1] Auth"]
  *     description: Inicia sesión y obtiene los tokens de acceso y refresco.
  *     requestBody:
  *       content:
@@ -80,7 +80,7 @@ router.post('/login', [methodValidator, contentTypeValidator], login)
  * @swagger
  * /api/v1/refresh_token:
  *   post:
- *     tags: ["[V1] Users"]
+ *     tags: ["[V1] Auth"]
  *     security:
  *     - bearerAuth: []
  *     description: Genera un nuevo token de acceso utilizando un token de refresco válido.
@@ -129,7 +129,7 @@ router.post(
  * @swagger
  * /api/v1/logout:
  *   post:
- *     tags: ["[V1] Users"]
+ *     tags: ["[V1] Auth"]
  *     security:
  *     - bearerAuth: []
  *     description: Invalida la sesión actual del usuario.
@@ -178,7 +178,7 @@ router.post(
  * @swagger
  * /api/v1/logout_all:
  *   post:
- *     tags: ["[V1] Users"]
+ *     tags: ["[V1] Auth"]
  *     security:
  *     - bearerAuth: []
  *     description: Invalida todas las sesiones activas del usuario.
@@ -198,7 +198,7 @@ router.post(
  */
 router.post(
     '/logout_all',
-    [methodValidator, contentTypeValidator, checkBearer],
+    [methodValidator, checkBearer],
     logoutAll
 )
 
@@ -206,7 +206,7 @@ router.post(
  * @swagger
  * /api/v1/register:
  *   post:
- *     tags: ["[V1] Users"]
+ *     tags: ["[V1] Auth"]
  *     description: Registra un nuevo usuario en el sistema.
  *     requestBody:
  *       content:
