@@ -1,16 +1,22 @@
 import { Router } from 'express'
 import {
-    checkBearer,
-    contentTypeValidator,
-    methodValidator
+  checkBearer,
+  contentTypeValidator,
+  methodValidator
 } from '../middlewares/authentication.middleware'
 import {
-    login,
-    logout,
-    logoutAll,
-    refreshToken,
-    register
+  login,
+  logout,
+  logoutAll,
+  refreshToken,
+  register
 } from '../controllers/auth.controller'
+import {
+  loginValidator,
+  logoutValidator,
+  refreshTokenValidator,
+  registerValidator
+} from '../validators/auth.validators'
 
 const router = Router()
 
@@ -74,7 +80,11 @@ const router = Router()
  *       500:
  *         description: Mensaje de error.
  */
-router.post('/login', [methodValidator, contentTypeValidator], login)
+router.post(
+  '/login',
+  [methodValidator, contentTypeValidator, ...loginValidator],
+  login
+)
 
 /**
  * @swagger
@@ -120,9 +130,14 @@ router.post('/login', [methodValidator, contentTypeValidator], login)
  *         description: Mensaje de error.
  */
 router.post(
-    '/refresh_token',
-    [methodValidator, contentTypeValidator, checkBearer],
-    refreshToken
+  '/refresh_token',
+  [
+    methodValidator,
+    contentTypeValidator,
+    checkBearer,
+    ...refreshTokenValidator
+  ],
+  refreshToken
 )
 
 /**
@@ -169,9 +184,9 @@ router.post(
  *         description: Mensaje de error.
  */
 router.post(
-    '/logout',
-    [methodValidator, contentTypeValidator, checkBearer],
-    logout
+  '/logout',
+  [methodValidator, contentTypeValidator, checkBearer, ...logoutValidator],
+  logout
 )
 
 /**
@@ -196,11 +211,7 @@ router.post(
  *       500:
  *         description: Mensaje de error.
  */
-router.post(
-    '/logout_all',
-    [methodValidator, checkBearer],
-    logoutAll
-)
+router.post('/logout_all', [methodValidator, checkBearer], logoutAll)
 
 /**
  * @swagger
@@ -246,6 +257,10 @@ router.post(
  *       500:
  *         description: Mensaje de error.
  */
-router.post('/register', [methodValidator, contentTypeValidator], register)
+router.post(
+  '/register',
+  [methodValidator, contentTypeValidator, ...registerValidator],
+  register
+)
 
 export { router as Auth }

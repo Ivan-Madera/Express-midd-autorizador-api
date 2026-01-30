@@ -8,7 +8,7 @@ export const baseRoute = (_req: any, res: any, _next: any): void => {
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>API Template JSONAPI · Ivan Madera</title>
+    <title>Midd Autorizador API</title>
       <style>
         body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial; color: #e5e7eb; background: #0f172a; display: grid; place-items: center; min-height: 100vh; padding: 24px; }
         .card { max-width: 920px; width: 100%; background: linear-gradient(180deg, rgba(17,24,39,.9), rgba(17,24,39,.85)); border: 1px solid rgba(255,255,255,.06); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04); overflow: hidden; }
@@ -30,10 +30,10 @@ export const baseRoute = (_req: any, res: any, _next: any): void => {
     <body>
       <main class="card" role="main">
         <section class="header">
-          <div class="logo" aria-hidden="true">🚀</div>
+          <div class="logo" aria-hidden="true">🛡️</div>
           <div>
-            <div class="title">API Template JSONAPI · Ivan Madera</div>
-            <div class="subtitle">Template de NodeJS para desarrollos cortos y sencillos implementando las respuestas con jsonapi</div>
+            <div class="title">Midd Autorizador API</div>
+            <div class="subtitle">Middleware de autorización para validación de permisos y seguridad</div>
           </div>
         </section>
         <section class="content">

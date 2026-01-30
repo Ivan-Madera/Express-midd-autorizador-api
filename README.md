@@ -1,246 +1,221 @@
-# 🚀 EXPRESS-JSONAPI-TEMPLATE
+# Midd Autorizador API 🛡️
 
-Esta API está diseñada para ser utilizada por desarrolladores que requieran un template robusto y escalable para crear APIs REST siguiendo el estándar JSON:API. Proporciona una estructura completa con autenticación JWT, documentación Swagger automática, testing integrado y configuración para desarrollo y producción.
+**Middle de Autorización para validación de permisos y seguridad.**
+
+Este proyecto es una API REST construida con **Node.js, Express y TypeScript** diseñada para gestionar la autenticación y autorización de usuarios. Proporciona endpoints seguros para registro, inicio de sesión, gestión de sesiones y renovación de tokens, siguiendo la especificación **JSON:API**.
 
 ## 📋 Tabla de Contenidos
 
-- [🎯 Descripción](#-descripción)
-- [🛠️ Tecnologías](#-tecnologías)
-- [📁 Estructura del Proyecto](#-estructura-del-proyecto)
-- [🚀 Instalación y Configuración](#-instalación-y-configuración)
-- [🐳 Docker](#-docker)
-- [☁️ Despliegue](#-despliegue)
-- [🧪 Scripts Disponibles](#-scripts-disponibles)
-- [🔧 Variables de Entorno](#-variables-de-entorno)
-- [📡 API Endpoints](#-api-endpoints)
-- [📝 Licencia](#-licencia)
-- [📞 Soporte](#-soporte)
+1. [Descripción General](#-descripción-general)
+2. [Arquitectura del Proyecto](#-arquitectura-del-proyecto)
+3. [Tecnologías Utilizadas](#-tecnologías-utilizadas)
+4. [Instalación y Configuración](#-instalación-y-configuración)
+5. [Guía de Uso](#-guía-de-uso)
+6. [API Endpoints](#-api-endpoints)
+7. [Scripts Disponibles](#-scripts-disponibles)
+8. [Estructura de Base de Datos](#-estructura-de-base-de-datos)
+9. [Licencia](#-licencia)
 
-## 🎯 Descripción
+---
 
-Este template actúa como base sólida para el desarrollo de APIs REST, proporcionando una estructura completa que permite:
+## 🎯 Descripción General
 
-- Crear APIs siguiendo el estándar JSON:API
-- Implementar autenticación JWT segura
-- Generar documentación automática con Swagger
-- Manejar errores y respuestas estandarizadas
-- Ejecutar pruebas automatizadas con Jest
-- Gestionar base de datos con migraciones y seeders
-- Desplegar en contenedores Docker
+### ¿Qué problema soluciona?
 
-## 🛠️ Tecnologías
+Provee un sistema centralizado y seguro para la gestión de identidades y control de acceso. Elimina la necesidad de reimplementar lógica de autenticación en diferentes servicios al centralizar el manejo de usuarios, sesiones y tokens JWT.
 
-### Backend
-- **[Node.js](https://nodejs.org/)** - Runtime de JavaScript
-- **[Express.js](https://expressjs.com/)** - Framework web
-- **[TypeScript](https://www.typescriptlang.org/)** - Superset de JavaScript con tipado estático
+### Funcionalidades Principales
 
-### Base de Datos
-- **[MySQL](https://www.mysql.com/)** - Sistema de gestión de base de datos
-- **[Sequelize](https://sequelize.org/)** - ORM para Node.js
+- **Registro de Usuarios**: Creación de nuevas cuentas con validación de datos.
+- **Autenticación (Login)**: Verificación de credenciales y emisión de Access y Refresh Tokens.
+- **Gestión de Sesiones**:
+  - Renovación de tokens (`Refresh Token`).
+  - Cierre de sesión (`Logout` server-side invalidation).
+  - Revocación global de sesiones (`Logout All`).
+- **Seguridad**: Headers HTTP seguros (Helmet), validación de esquemas (Joi/Express-Validator) y contraseñas hasheadas (Argon2).
+- **Documentación**: Swagger UI integrado.
 
-### Seguridad y Validación
-- **[Helmet](https://helmetjs.github.io/)** - Middleware de seguridad
-- **[JWT](https://jwt.io/)** - Autenticación por tokens
-- **[Joi](https://joi.dev/)** - Validación de esquemas
-- **[Express Validator](https://express-validator.github.io/)** - Validación de datos
+---
 
-### Documentación y Testing
-- **[Swagger/OpenAPI](https://swagger.io/)** - Documentación de API
-- **[Jest](https://jestjs.io/)** - Framework de testing
-- **[Supertest](https://github.com/visionmedia/supertest)** - Testing de endpoints
+## 🏗️ Arquitectura del Proyecto
 
-### Despliegue y DevOps
-- **[Docker](https://www.docker.com/)** - Containerización
-- **[Docker Compose](https://docs.docker.com/compose/)** - Orquestación de contenedores
-
-### Utilidades
-- **[Axios](https://axios-http.com/)** - Cliente HTTP
-- **[Log4js](https://log4js-node.github.io/)** - Logging
-- **[UUID](https://github.com/uuidjs/uuid)** - Generación de IDs únicos
-
-## 📁 Estructura del Proyecto
+El proyecto sigue una arquitectura en capas modular y escalable:
 
 ```
-express-jsonapi-template/
-├── src/
-│   ├── config/         # Configuraciones de la aplicación
-│   ├── controllers/    # Controladores de la API
-│   ├── database/       # Configuración de base de datos
-│   ├── entities/       # Entidades de respuesta
-│   ├── errors/         # Manejo de errores personalizados
-│   ├── middlewares/    # Middlewares de Express
-│   ├── repositories/   # Capa de acceso a datos
-│   ├── routes/         # Definición de rutas
-│   ├── services/       # Lógica de negocio
-│   ├── tests/          # Pruebas unitarias e integración
-│   ├── utils/          # Utilidades y helpers
-│   └── validators/     # Validaciones de entrada
-├── app.ts              # Punto de entrada de la aplicación
-├── Dockerfile          # Configuración de Docker
-├── docker-compose.yaml # Orquestación de contenedores
-├── package.json        # Dependencias y scripts
-├── tsconfig.json       # Configuración de TypeScript
-└── jest.config.ts      # Configuración de Jest
+src/
+├── config/         # Configuración del servidor, Swagger, carga de entorno (env).
+├── controllers/    # Manejadores de requests (lógica de entrada/salida).
+├── database/       # Configuración de Sequelize, Modelos, Migraciones y Seeders.
+│   └── models/     # Definición de esquemas (User, Session).
+├── entities/       # Entidades de respuesta formateadas.
+├── errors/         # Manejo centralizado de errores.
+├── middlewares/    # Middlewares globales y de autenticación (JWT check, validaciones).
+├── repositories/   # Capa de acceso a datos (interacción con DB).
+├── routes/         # Definición de endpoints y rutas (Auth).
+├── services/       # Lógica de negocio pura.
+├── utils/          # Utilidades (Logger, respuestas JSON:API, códigos HTTP).
+└── validators/     # Validaciones de request body/params.
 ```
+
+### Componentes Clave
+
+- **Server (`src/config/server.ts`)**: Clase principal que inicializa Express, middlewares y rutas.
+- **Auth Routes (`src/routes/auth.routes.ts`)**: Define los endpoints de autenticación y sus validadores.
+- **Authentication Middleware (`src/middlewares/authentication.middleware.ts`)**: Valida los tokens Bearer para rutas protegidas.
+
+---
+
+## 🛠️ Tecnologías Utilizadas
+
+- **Lenguaje**: [TypeScript](https://www.typescriptlang.org/) (v5.x)
+- **Runtime**: [Node.js](https://nodejs.org/) (v18+)
+- **Framework Web**: [Express](https://expressjs.com/)
+- **Base de Datos**: MySQL con [Sequelize ORM](https://sequelize.org/)
+- **Seguridad**:
+  - [Helmet](https://helmetjs.github.io/): Seguridad en headers HTTP.
+  - [Argon2](https://github.com/ranisalt/node-argon2): Hashing de contraseñas.
+  - [JWT](https://jwt.io/): Tokens de acceso.
+  - [Cors](https://github.com/expressjs/cors): Gestión de orígenes cruzados.
+- **Validación**: `express-validator` y `joi`.
+- **Documentación**: `swagger-jsdoc` y `swagger-ui-express`.
+- **Logging**: `log4js`.
+- **Testing**: `jest` y `supertest`.
+
+---
 
 ## 🚀 Instalación y Configuración
 
 ### Prerrequisitos
 
-- Node.js 18.x o superior
-- npm 9.x o superior
-- MySQL 8.0 o superior
-- Git
+- Node.js >= 18.0.0
+- MySQL >= 8.0
+- npm >= 9.0.0
 
-### Instalación Local
+### Pasos de Instalación
 
-1. **Clona el repositorio:**
-   ```bash
-   git clone https://github.com/Ivan-Madera/Express-jsonapi-template.git
-   cd Express-jsonapi-template
-   ```
+1. **Instalar dependencias**:
 
-2. **Instala las dependencias:**
    ```bash
    npm install
    ```
 
-3. **Configura las variables de entorno:**
+2. **Configurar Variables de Entorno**:
+   Crea un archivo `.env` basado en `.env.example`:
+
    ```bash
    cp .env.example .env
-   # Edita el archivo .env con tus valores
    ```
 
-4. **Configura la base de datos:**
+   Configura las variables críticas:
+
+   ```env
+   ENV=development
+   PORT=3000
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASSWORD=tu_password
+   DB_DATABASE=nombre_db
+   TOKEN=secreto_token_jwt
+   SECRET_KEY=clave_secreta_app
+   ```
+
+3. **Base de Datos**:
+   Ejecuta las migraciones para crear las tablas:
    ```bash
    npm run migrate
+   ```
+   (Opcional) Carga datos de prueba:
+   ```bash
    npm run seeder
    ```
 
-5. **Compila el proyecto:**
-   ```bash
-   npm run build
-   ```
+---
 
-6. **Ejecuta en modo desarrollo:**
-   ```bash
-   npm run dev
-   ```
+## 📖 Guía de Uso
 
-## 🐳 Docker
-
-### Construir la imagen
+### Iniciar en Desarrollo
 
 ```bash
-docker build -t express-jsonapi-template .
+npm run dev
 ```
 
-### Ejecutar con Docker
+El servidor iniciará (por defecto) en `http://127.0.0.1:3000`.
 
-```bash
-docker run -p 3000:3000 --env-file .env express-jsonapi-template
-```
+### Acceder a la Documentación
 
-### Usar Docker Compose
+Visita `http://127.0.0.1:3000/docs` para ver la documentación interactiva de Swagger (solo en entorno que no sea producción).
 
-```bash
-docker-compose up -d
-```
+### Verificar Estado
 
-## ☁️ Despliegue
+Haz una petición GET a la raíz para ver el estado del servicio:
+`GET http://127.0.0.1:3000/`
 
-### Contenedores Docker
+Respuesta HTML esperada: **"Midd Autorizador API"**
 
-El proyecto está configurado para desplegarse en cualquier plataforma que soporte Docker:
-
-```bash
-# Construir imagen de producción
-docker build -t express-jsonapi-template:prod .
-
-# Ejecutar en producción
-docker run -d -p 3000:3000 --env-file .env.prod express-jsonapi-template:prod
-```
-
-### Configuración de Producción
-
-Para el despliegue en producción, asegúrate de:
-
-- Configurar variables de entorno de producción
-- Configurar base de datos de producción
-- Configurar logs y monitoreo
-- Configurar SSL/TLS si es necesario
-
-## 🧪 Scripts Disponibles
-
-| Comando                   | Descripción                               |
-|---------------------------|-------------------------------------------|
-| `npm run build`           | Compila TypeScript a JavaScript           |
-| `npm start`               | Ejecuta la aplicación en producción       |
-| `npm run dev`             | Ejecuta en modo desarrollo con hot-reload |
-| `npm test`                | Ejecuta todas las pruebas                 |
-| `npm run test:watch`      | Ejecuta pruebas en modo watch             |
-| `npm run lint`            | Verifica el código con ESLint             |
-| `npm run lint:fix`        | Corrige errores de ESLint automáticamente |
-| `npm run format`          | Formatea el código con Prettier           |
-| `npm run new:migration`   | Genera nueva migración                    |
-| `npm run new:seeder`      | Genera nuevo seeder                       |
-| `npm run migrate`         | Ejecuta migraciones pendientes            |
-| `npm run seeder`          | Ejecuta seeders pendientes                |
-
-## 🔧 Variables de Entorno
-
-| Variable         | Descripción                                | Tipo      | Requerida |
-|------------------|--------------------------------------------|-----------|-----------|
-| `ENV`            | Entorno de ejecución                       | string    | ✅        |
-| `PORT`           | Puerto del servidor                        | number    | ✅        |
-| `DB_DATABASE`    | Nombre de la base de datos                 | string    | ✅        |
-| `DB_USERNAME`    | Usuario de MySQL                           | string    | ✅        |
-| `DB_PASSWORD`    | Contraseña de MySQL                        | string    | ✅        |
-| `DB_HOST`        | Host de la base de datos                   | string    | ✅        |
-| `DB_PORT`        | Puerto de MySQL                            | number    | ✅        |
-| `TOKEN`          | Token secreto para autenticación           | string    | ✅        |
-| `SECRET_KEY`     | Clave para firmar JWT                      | string    | ✅        |
-| `MAX_CONNECTION` | Conexiones máximas simultáneas             | number    | ❌        |
-| `MIN_CONNECTION` | Conexiones mínimas activas                 | number    | ❌        |
-| `DB_ACQUIRE`     | Tiempo máximo para adquirir conexión (ms)  | number    | ❌        |
-| `DB_IDLE`        | Tiempo máximo de inactividad (ms)          | number    | ❌        |
-| `DB_EVICT`       | Intervalo de limpieza de conexiones (ms)   | number    | ❌        |
+---
 
 ## 📡 API Endpoints
 
-### Base URL
+Base URL: `/api/v1`
+
+### Autenticación (`/auth`)
+
+| Método | Endpoint         | Descripción                                      | Auth Requerida |
+| ------ | ---------------- | ------------------------------------------------ | -------------- |
+| POST   | `/login`         | Inicia sesión y devuelve Access/Refresh Tokens.  | ❌             |
+| POST   | `/register`      | Registra un nuevo usuario.                       | ❌             |
+| POST   | `/refresh_token` | Obtiene un nuevo Access Token usando el Refresh. | ✅ (Header\*)  |
+| POST   | `/logout`        | Cierra la sesión actual (invalida token).        | ✅ (Bearer)    |
+| POST   | `/logout_all`    | Cierra todas las sesiones del usuario.           | ✅ (Bearer)    |
+
+_> Nota: El refresh token suele enviarse en el body, pero el endpoint puede requerir validación de estructura._
+
+**Ejemplo de Payload (Login)**:
+
+```json
+{
+  "data": {
+    "type": "user",
+    "attributes": {
+      "email": "user@example.com",
+      "password": "password123",
+      "device_id": "device-001",
+      "device_type": "web"
+    }
+  }
+}
 ```
-https://api.example.com/api/v1
-```
-
-### Autenticación
-La mayoría de endpoints requieren un token Bearer en el header:
-```
-Authorization: Bearer <token>
-```
-
-### Endpoints Disponibles
-
-#### [V1] Users
-
-| Método | Ruta          | Descripción                   | Autenticación |
-|--------|---------------|-------------------------------|---------------|
-| POST   | /accesstoken  | Obtiene token JWT de acceso   | ❌            |
-| POST   | /users/get    | Obtiene usuarios activos      | ✅            |
-| POST   | /users        | Registra nuevo usuario        | ✅            |
-| PATCH  | /users        | Actualiza usuario existente   | ✅            |
-
-## 📝 Licencia
-
-Este proyecto está bajo la licencia [MIT](https://opensource.org/licenses/MIT).
 
 ---
 
-## 📞 Soporte
+## 🧪 Scripts Disponibles
 
-Para soporte técnico o preguntas sobre el proyecto, contacta al autor del template.
+Comandos npm definidos en `package.json`:
+
+- `npm run dev`: Inicia el servidor de desarrollo con recarga automática.
+- `npm run build`: Compila el código TypeScript a JavaScript en `/build`.
+- `npm start`: Inicia el servidor compilado (producción).
+- `npm run migrate`: Ejecuta las migraciones de base de datos.
+- `npm run migrate:undo`: Revierte la última migración.
+- `npm run new:migration`: Genera un nuevo archivo de migración.
+- `npm run test`: Ejecuta los tests unitarios con Jest.
+- `npm run lint`: Ejecuta el linter (ESLint).
 
 ---
 
-**Desarrollado con ❤️ por Ivan Madera**
+## 🗄️ Estructura de Base de Datos
+
+El sistema utiliza principalmente dos modelos (basado en `src/database/models`):
+
+1. **User**: Almacena la información de perfil y credenciales.
+2. **Session**: Gestiona los tokens de refresco y el estado de las sesiones activas por dispositivo.
+
+---
+
+## � Licencia
+
+Este proyecto está bajo la licencia **MIT**.
+
+---
+
+**Midd Autorizador API**

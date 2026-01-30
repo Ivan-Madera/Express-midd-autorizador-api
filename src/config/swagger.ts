@@ -4,9 +4,9 @@ export const options = {
   definition: {
     openapi: '3.1.1',
     info: {
-      title: 'API TEMPLATE JSONAPI',
+      title: 'Midd Autorizador API',
       version: '1.0.0',
-      description: 'API documentation made with ❤ by Ivan Madera'
+      description: 'Middleware de autorización para validación de permisos y seguridad'
     },
     license: {
       name: 'MIT License',
@@ -22,7 +22,7 @@ export const options = {
 }
 
 export const custom = {
-  customSiteTitle: 'template-jsonapi',
+  customSiteTitle: 'Midd Autorizador API',
   swaggerOptions: {
     persistAuthorization: true
   }

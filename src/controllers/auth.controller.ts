@@ -1,7 +1,7 @@
 import { Handler } from 'express'
 import { Codes } from '../utils/codeStatus'
 import { JsonApiResponseError } from '../utils/jsonApiResponses'
-import { loginService, logoutAllService, logoutService, refreshTokenService, registerService } from '../services/sessions.service'
+import { loginService, logoutAllService, logoutService, refreshTokenService, registerService } from '../services/auth.service'
 
 export const login: Handler = async (req, res) => {
   const url = req.originalUrl

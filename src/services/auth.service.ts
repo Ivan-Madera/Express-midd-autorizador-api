@@ -1,12 +1,25 @@
 import { IJsonApiResponseGeneric } from '../entities/jsonApiResponses.entities'
-import { createSession, destroySession } from '../repositories/mutations/session.mutations'
+import { authErrors } from '../errors/auth.errors'
+import {
+  createSession,
+  destroySession
+} from '../repositories/mutations/session.mutations'
 import { createUser } from '../repositories/mutations/user.mutations'
 import { findOneSession } from '../repositories/queries/session.queries'
 import { findOneUser } from '../repositories/queries/user.queries'
 import { Codes } from '../utils/codeStatus'
 import { ErrorException } from '../utils/Exceptions'
-import { JsonApiResponseData, JsonApiResponseError, JsonApiResponseGeneric, JsonApiResponseMessage } from '../utils/jsonApiResponses'
-import { createAccessToken, createRefreshToken, hashToken } from '../utils/tokens'
+import {
+  JsonApiResponseData,
+  JsonApiResponseError,
+  JsonApiResponseGeneric,
+  JsonApiResponseMessage
+} from '../utils/jsonApiResponses'
+import {
+  createAccessToken,
+  createRefreshToken,
+  hashToken
+} from '../utils/tokens'
 import * as argon2 from 'argon2'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -26,11 +39,7 @@ export const loginService = async (
     if (!user) {
       status = Codes.unauthorized
       throw new ErrorException(
-        {
-          code: 'AUTH-001',
-          suggestions: 'Check the user credentials.',
-          title: 'User not found.'
-        },
+        authErrors.NOT_FOUND,
         status,
         'The user was not found.'
       )
@@ -40,13 +49,9 @@ export const loginService = async (
     if (!ok) {
       status = Codes.unauthorized
       throw new ErrorException(
-        {
-          code: 'AUTH-002',
-          suggestions: 'Check the user credentials.',
-          title: 'User not found.'
-        },
+        authErrors.INVALID_CREDENTIALS,
         status,
-        'The user was not found.'
+        'The credentials are not valid.'
       )
     }
 
@@ -95,11 +100,7 @@ export const refreshTokenService = async (
     if (!session) {
       status = Codes.unauthorized
       throw new ErrorException(
-        {
-          code: 'AUTH-001',
-          suggestions: 'Check the user credentials.',
-          title: 'User not found.'
-        },
+        authErrors.NOT_FOUND,
         status,
         'The user was not found.'
       )
@@ -108,13 +109,9 @@ export const refreshTokenService = async (
     if (session.revoked_at || session.expires_at < new Date()) {
       status = Codes.unauthorized
       throw new ErrorException(
-        {
-          code: 'AUTH-001',
-          suggestions: 'Check the user credentials.',
-          title: 'User not found.'
-        },
+        authErrors.INVALID_CREDENTIALS,
         status,
-        'The user was not found.'
+        'The credentials are not valid.'
       )
     }
 
@@ -143,7 +140,11 @@ export const refreshTokenService = async (
     status = Codes.success
     return JsonApiResponseGeneric(
       status,
-      JsonApiResponseData('session', { accessToken, refreshToken: newRefreshToken }, url)
+      JsonApiResponseData(
+        'session',
+        { accessToken, refreshToken: newRefreshToken },
+        url
+      )
     )
   } catch (error) {
     return JsonApiResponseGeneric(status, JsonApiResponseError(error, url))
@@ -183,7 +184,11 @@ export const logoutAllService = async (
     status = Codes.success
     return JsonApiResponseGeneric(
       status,
-      JsonApiResponseMessage('session', 'All sessions have been closed successfully.', url)
+      JsonApiResponseMessage(
+        'session',
+        'All sessions have been closed successfully.',
+        url
+      )
     )
   } catch (error) {
     return JsonApiResponseGeneric(status, JsonApiResponseError(error, url))
@@ -202,13 +207,9 @@ export const registerService = async (
     if (user) {
       status = Codes.unauthorized
       throw new ErrorException(
-        {
-          code: 'AUTH-001',
-          suggestions: 'Check the user credentials.',
-          title: 'User not found.'
-        },
+        authErrors.ALREADY_EXISTS,
         status,
-        'The user was not found.'
+        'The user already exists.'
       )
     }
 
