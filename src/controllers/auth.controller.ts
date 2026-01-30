@@ -2,7 +2,6 @@ import { Handler } from 'express'
 import { Codes } from '../utils/codeStatus'
 import { JsonApiResponseError } from '../utils/jsonApiResponses'
 import { ErrorException } from '../utils/Exceptions'
-import User from '../database/models/User.model'
 import * as argon2 from 'argon2'
 import { v4 as uuidv4 } from 'uuid'
 import {
@@ -10,7 +9,10 @@ import {
   createRefreshToken,
   hashToken
 } from '../utils/tokens'
-import Session from '../database/models/Session.model'
+import { findOneUser } from '../repositories/queries/user.queries'
+import { createUser } from '../repositories/mutations/user.mutations'
+import { findOneSession } from '../repositories/queries/session.queries'
+import { createSession, destroySession } from '../repositories/mutations/session.mutations'
 
 export const login: Handler = async (req, res) => {
   const url = req.originalUrl
@@ -25,7 +27,7 @@ export const login: Handler = async (req, res) => {
 
     const { email, password, device_id, device_type } = attributes
 
-    const user = await User.findOne({ where: { email } })
+    const user = await findOneUser(email)
     if (!user) {
       status = Codes.unauthorized
       throw new ErrorException(
@@ -63,13 +65,13 @@ export const login: Handler = async (req, res) => {
     const refreshToken = createRefreshToken()
     const refreshHash = hashToken(refreshToken)
 
-    await Session.create({
+    await createSession({
       user_id: user.id,
       refresh_token_hash: refreshHash,
       device_id,
       device_type,
-      ip: req.ip as string,
-      user_agent: req.get('user-agent') as string,
+      ip: req.ip ?? null,
+      user_agent: req.get('user-agent') ?? null,
       expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
     })
 
@@ -95,7 +97,7 @@ export const refreshToken: Handler = async (req, res) => {
 
     const hash = hashToken(refresh_token)
 
-    const session = await Session.findOne({ where: { refresh_token_hash: hash } })
+    const session = await findOneSession(hash)
     if (!session) {
       status = Codes.unauthorized
       throw new ErrorException(
@@ -122,12 +124,12 @@ export const refreshToken: Handler = async (req, res) => {
       )
     }
 
-    await session.destroy()
+    await destroySession({ where: { id: session.id } })
 
     const newRefreshToken = createRefreshToken()
     const newRefreshHash = hashToken(newRefreshToken)
 
-    await Session.create({
+    await createSession({
       user_id: session.user_id,
       refresh_token_hash: newRefreshHash,
       device_id: session.device_id,
@@ -166,7 +168,7 @@ export const logout: Handler = async (req, res) => {
 
     const hash = hashToken(refresh_token)
 
-    await Session.destroy({ where: { refresh_token_hash: hash } })
+    await destroySession({ where: { refresh_token_hash: hash } })
 
     status = Codes.success
     return res.status(status).json({ message: 'User logged out successfully' })
@@ -182,7 +184,7 @@ export const logoutAll: Handler = async (req, res) => {
   try {
     const user_id = req.user_id
 
-    await Session.destroy({ where: { user_id } })
+    await destroySession({ where: { user_id } })
 
     status = Codes.success
     return res.status(status).json({ message: 'All sessions closed successfully' })
@@ -204,7 +206,7 @@ export const register: Handler = async (req, res) => {
 
     const { email, password } = attributes
 
-    const exists = await User.findOne({ where: { email } })
+    const exists = await findOneUser(email)
     if (exists) {
       status = Codes.unauthorized
       throw new ErrorException(
@@ -222,7 +224,7 @@ export const register: Handler = async (req, res) => {
       type: argon2.argon2id
     })
 
-    await User.create({ email, password_hash: passwordHash })
+    await createUser({ email, password_hash: passwordHash })
 
     status = Codes.success
     return res.status(status).json({ message: 'User registered successfully' })
