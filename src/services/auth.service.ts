@@ -40,9 +40,10 @@ export const loginService = async (
   try {
     const user = await findOneUser(email)
     if (!user) {
+      await new Promise(r => setTimeout(r, 1000))
       status = Codes.unauthorized
       throw new ErrorException(
-        authErrors.NOT_FOUND,
+        authErrors.INVALID_CREDENTIALS,
         status,
         'The user was not found.'
       )
@@ -50,11 +51,12 @@ export const loginService = async (
 
     const ok = await argon2.verify(user.password_hash, password)
     if (!ok) {
+      await new Promise(r => setTimeout(r, 1000))
       status = Codes.unauthorized
       throw new ErrorException(
         authErrors.INVALID_CREDENTIALS,
         status,
-        'The credentials are not valid.'
+        'The password is not valid.'
       )
     }
 
@@ -105,9 +107,9 @@ export const refreshTokenService = async (
     if (!session) {
       status = Codes.unauthorized
       throw new ErrorException(
-        authErrors.NOT_FOUND,
+        authErrors.INVALID_CREDENTIALS,
         status,
-        'The user was not found.'
+        'The token is not valid.'
       )
     }
 
@@ -116,7 +118,7 @@ export const refreshTokenService = async (
       throw new ErrorException(
         authErrors.INVALID_CREDENTIALS,
         status,
-        'The credentials are not valid.'
+        'The session was revoked or expired.'
       )
     }
 
@@ -125,7 +127,7 @@ export const refreshTokenService = async (
       throw new ErrorException(
         authErrors.INVALID_CREDENTIALS,
         status,
-        'The credentials are not valid.'
+        'The credentials and the token do not match.'
       )
     }
 
