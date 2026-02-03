@@ -24,16 +24,6 @@ export const refreshTokenValidator = [
   }
 ]
 
-export const logoutValidator = [
-  body('data').notEmpty().isObject(),
-  body('data.type').notEmpty().isString(),
-  body('data.attributes').notEmpty().isObject(),
-  body('data.attributes.refresh_token').notEmpty().isString(),
-  (req: any, res: any, next: any) => {
-    validateResult(req, res, next)
-  }
-]
-
 export const registerValidator = [
   body('data').notEmpty().isObject(),
   body('data.type').notEmpty().isString(),

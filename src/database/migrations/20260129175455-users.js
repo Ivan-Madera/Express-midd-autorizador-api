@@ -23,6 +23,10 @@ module.exports = {
         allowNull: false,
         defaultValue: false
       },
+      last_login: {
+        type: Sequelize.DATE,
+        allowNull: true
+      },
       created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.fn('NOW'),

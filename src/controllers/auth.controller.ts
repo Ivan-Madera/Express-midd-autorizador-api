@@ -53,12 +53,16 @@ export const refreshToken: Handler = async (req, res) => {
       }
     } = req
 
+    const userId = req.user_id as number
+    const sessionId = req.session_id as number
     const ip = req.ip ?? null
     const userAgent = req.get('user-agent') ?? null
 
     const authResponse = await refreshTokenService(
       url,
       attributes.refresh_token,
+      userId,
+      sessionId,
       ip,
       userAgent
     )
@@ -75,15 +79,9 @@ export const logout: Handler = async (req, res) => {
   let status = Codes.errorServer
 
   try {
-    const {
-      body: {
-        data: { attributes }
-      }
-    } = req
+    const sessionId = req.session_id as number
 
-    const { refresh_token } = attributes
-
-    const authResponse = await logoutService(url, refresh_token)
+    const authResponse = await logoutService(url, sessionId)
 
     status = authResponse.status
     return res.status(status).json(authResponse.response)
@@ -97,7 +95,7 @@ export const logoutAll: Handler = async (req, res) => {
   let status = Codes.errorServer
 
   try {
-    const userId = req.user_id as string
+    const userId = req.user_id as number
 
     const authResponse = await logoutAllService(url, userId)
 

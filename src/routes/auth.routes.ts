@@ -13,7 +13,6 @@ import {
 } from '../controllers/auth.controller'
 import {
   loginValidator,
-  logoutValidator,
   refreshTokenValidator,
   registerValidator
 } from '../validators/auth.validators'
@@ -148,27 +147,6 @@ router.post(
  *     security:
  *     - bearerAuth: []
  *     description: Invalida la sesión actual del usuario.
- *     requestBody:
- *       content:
- *         application/vnd.api+json:
- *           schema:
- *             type: object
- *             properties:
- *               data:
- *                 type: object
- *                 properties:
- *                   type:
- *                     type: string
- *                   attributes:
- *                     type: object
- *                     properties:
- *                       refresh_token:
- *                         type: string
- *           example:
- *             data:
- *               type: user
- *               attributes:
- *                 refresh_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *     responses:
  *       200:
  *         description: Request exitoso.
@@ -185,7 +163,7 @@ router.post(
  */
 router.post(
   '/logout',
-  [methodValidator, contentTypeValidator, checkBearer, ...logoutValidator],
+  [methodValidator, checkBearer],
   logout
 )
 

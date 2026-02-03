@@ -5,11 +5,12 @@ interface UserAttributes {
   id: number
   email: string
   password_hash: string
+  last_login: Date
 }
 
 export interface UserCreationAttributes extends Optional<
   UserAttributes,
-  'id'
+  'id' | 'last_login'
 > {}
 
 export interface UserInstance
@@ -31,6 +32,10 @@ const User = sequelize.define<UserInstance>(
     password_hash: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    last_login: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   },
   {
