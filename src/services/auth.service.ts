@@ -2,7 +2,6 @@ import { IJsonApiResponseGeneric } from '../entities/jsonApiResponses.entities'
 import { authErrors } from '../errors/auth.errors'
 import {
   createSession,
-  destroySession,
   updateSession
 } from '../repositories/mutations/session.mutations'
 import {
@@ -40,7 +39,7 @@ export const loginService = async (
   try {
     const user = await findOneUser(email)
     if (!user) {
-      await new Promise(r => setTimeout(r, 1000))
+      await new Promise((r) => setTimeout(r, 1000))
       status = Codes.unauthorized
       throw new ErrorException(
         authErrors.INVALID_CREDENTIALS,
@@ -51,7 +50,7 @@ export const loginService = async (
 
     const ok = await argon2.verify(user.password_hash, password)
     if (!ok) {
-      await new Promise(r => setTimeout(r, 1000))
+      await new Promise((r) => setTimeout(r, 800))
       status = Codes.unauthorized
       throw new ErrorException(
         authErrors.INVALID_CREDENTIALS,
@@ -92,11 +91,7 @@ export const loginService = async (
 
 export const refreshTokenService = async (
   url: string,
-  refreshToken: string,
-  userId: number,
-  sessionId: number,
-  ip: string | null,
-  userAgent: string | null
+  refreshToken: string
 ): Promise<IJsonApiResponseGeneric> => {
   let status = Codes.errorServer
 
@@ -122,36 +117,20 @@ export const refreshTokenService = async (
       )
     }
 
-    if (session.user_id !== userId || session.id !== sessionId) {
-      status = Codes.unauthorized
-      throw new ErrorException(
-        authErrors.INVALID_CREDENTIALS,
-        status,
-        'The credentials and the token do not match.'
-      )
-    }
-
-    await updateSession(
-      { revoked_at: new Date() },
-      { where: { id: session.id } }
-    )
-
     const newRefreshToken = createRefreshToken()
     const newRefreshHash = hashToken(newRefreshToken)
 
-    const newSession = await createSession({
-      user_id: session.user_id,
-      refresh_token_hash: newRefreshHash,
-      device_id: session.device_id,
-      device_type: session.device_type,
-      ip,
-      user_agent: userAgent,
-      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    })
+    await updateSession(
+      {
+        refresh_token_hash: newRefreshHash,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      },
+      { where: { id: session.id } }
+    )
 
     const accessToken = createAccessToken({
       uid: session.user_id,
-      sid: newSession.id
+      sid: session.id
     })
 
     await updateUser(
@@ -202,7 +181,10 @@ export const logoutAllService = async (
   let status = Codes.errorServer
 
   try {
-    await destroySession({ where: { user_id: userId } })
+    await updateSession(
+      { revoked_at: new Date() },
+      { where: { user_id: userId } }
+    )
 
     status = Codes.success
     return JsonApiResponseGeneric(

@@ -1,5 +1,6 @@
 import env from '../config/callEnv'
 import { validationErrors } from '../errors/validation.errors'
+import { findNotRevokedSession } from '../repositories/queries/session.queries'
 import { Codes } from '../utils/codeStatus'
 import { ErrorException } from '../utils/Exceptions'
 import { JsonApiResponseError } from '../utils/jsonApiResponses'
@@ -71,7 +72,7 @@ export const contentTypeValidator = (req: any, res: any, next: any): void => {
   }
 }
 
-export const checkBearer = (req: any, res: any, next: any): any => {
+export const checkBearer = async (req: any, res: any, next: any): Promise<any> => {
   const url = req.originalUrl
   let status = Codes.errorServer
 
@@ -91,6 +92,17 @@ export const checkBearer = (req: any, res: any, next: any): any => {
     const token = auth.slice(7)
 
     const payload = verify(token, secret) as any
+
+    const session = await findNotRevokedSession(payload.sid)
+    if (!session) {
+      status = Codes.unauthorized
+      throw new ErrorException(
+        validationErrors.INVALID_TOKEN,
+        status,
+        'The session was revoked or expired.'
+      )
+    }
+
     req.user_id = payload.uid
     req.session_id = payload.sid
 

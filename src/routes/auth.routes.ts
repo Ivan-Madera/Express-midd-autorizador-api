@@ -130,12 +130,7 @@ router.post(
  */
 router.post(
   '/refresh_token',
-  [
-    methodValidator,
-    contentTypeValidator,
-    checkBearer,
-    ...refreshTokenValidator
-  ],
+  [methodValidator, contentTypeValidator, ...refreshTokenValidator],
   refreshToken
 )
 
@@ -161,11 +156,7 @@ router.post(
  *       500:
  *         description: Mensaje de error.
  */
-router.post(
-  '/logout',
-  [methodValidator, checkBearer],
-  logout
-)
+router.post('/logout', [methodValidator, checkBearer], logout)
 
 /**
  * @swagger

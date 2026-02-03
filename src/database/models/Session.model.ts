@@ -11,7 +11,7 @@ interface SessionAttributes {
   ip: string | null
   user_agent: string | null
   expires_at: Date
-  revoked_at: Date
+  revoked_at: Date | null
 }
 
 export interface SessionCreationAttributes extends Optional<

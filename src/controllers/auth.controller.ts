@@ -53,18 +53,9 @@ export const refreshToken: Handler = async (req, res) => {
       }
     } = req
 
-    const userId = req.user_id as number
-    const sessionId = req.session_id as number
-    const ip = req.ip ?? null
-    const userAgent = req.get('user-agent') ?? null
-
     const authResponse = await refreshTokenService(
       url,
-      attributes.refresh_token,
-      userId,
-      sessionId,
-      ip,
-      userAgent
+      attributes.refresh_token
     )
 
     status = authResponse.status

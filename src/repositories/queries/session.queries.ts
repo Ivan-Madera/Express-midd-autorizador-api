@@ -1,3 +1,4 @@
+import { Op } from 'sequelize'
 import Session, { SessionInstance } from '../../database/models/Session.model'
 
 export const findOneSession = async (
@@ -7,6 +8,23 @@ export const findOneSession = async (
   return await Session.findOne({
     where: {
       refresh_token_hash
+    },
+    attributes
+  })
+}
+
+
+export const findNotRevokedSession = async (
+  id: number,
+  attributes?: string[]
+): Promise<SessionInstance | null> => {
+  return await Session.findOne({
+    where: {
+      id,
+      revoked_at: null,
+      expires_at: {
+        [Op.gte]: new Date()
+      }
     },
     attributes
   })
