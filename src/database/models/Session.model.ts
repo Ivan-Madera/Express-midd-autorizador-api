@@ -10,13 +10,14 @@ interface SessionAttributes {
   device_type: string
   ip: string | null
   user_agent: string | null
+  replaced_by: number | null
   expires_at: Date
   revoked_at: Date | null
 }
 
 export interface SessionCreationAttributes extends Optional<
   SessionAttributes,
-  'id' | 'expires_at' | 'revoked_at'
+  'id' | 'replaced_by' | 'expires_at' | 'revoked_at'
 > {}
 
 export interface SessionInstance
@@ -53,6 +54,10 @@ const Session = sequelize.define<SessionInstance>(
     },
     user_agent: {
       type: DataTypes.STRING
+    },
+    replaced_by: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     },
     expires_at: {
       type: DataTypes.DATE,

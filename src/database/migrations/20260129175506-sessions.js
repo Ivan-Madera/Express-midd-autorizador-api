@@ -39,6 +39,14 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      replaced_by: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'sessions',
+          key: 'id'
+        }
+      },
       expires_at: {
         type: Sequelize.DATE,
         allowNull: false

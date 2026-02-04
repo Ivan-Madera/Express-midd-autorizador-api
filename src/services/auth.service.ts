@@ -110,19 +110,41 @@ export const refreshTokenService = async (
       )
     }
 
-    if (session.revoked_at || session.expires_at < new Date()) {
+    const now = new Date()
+
+    if (session.revoked_at) {
+      if (session.replaced_by) {
+        await updateSession(
+          { revoked_at: new Date() },
+          { where: { user_id: session.user_id } }
+        )
+
+        status = Codes.unauthorized
+        throw new ErrorException(
+          authErrors.INVALID_CREDENTIALS,
+          status,
+          'Security alert: token reuse detected.'
+        )
+      }
+
       status = Codes.unauthorized
       throw new ErrorException(
         authErrors.INVALID_CREDENTIALS,
         status,
-        'The session was revoked or expired.'
+        'The session was revoked.'
       )
     }
 
-    await updateSession(
-      { revoked_at: new Date() },
-      { where: { id: session.id } }
-    )
+    if (session.expires_at <= now) {
+      await updateSession({ revoked_at: now }, { where: { id: session.id } })
+
+      status = Codes.unauthorized
+      throw new ErrorException(
+        authErrors.INVALID_CREDENTIALS,
+        status,
+        'Session expired.'
+      )
+    }
 
     const newRefreshToken = createRefreshToken()
     const newRefreshHash = hashToken(newRefreshToken)
@@ -136,6 +158,11 @@ export const refreshTokenService = async (
       user_agent: userAgent,
       expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
     })
+
+    await updateSession(
+      { revoked_at: now, replaced_by: newSession.id },
+      { where: { id: session.id } }
+    )
 
     const accessToken = createAccessToken({
       uid: session.user_id,
