@@ -17,11 +17,12 @@ export const rollbackTransaction = async (
   transaction: Transaction,
   servicio: string
 ): Promise<void> => {
-  if (transaction) {
-    try {
-      await transaction.rollback()
-    } catch (error: any) {
-      console.log(`Error en ${servicio} al hacer rollback:`, error.message)
-    }
+  if (!transaction) return
+  if ((transaction as any).finished) return
+
+  try {
+    await transaction.rollback()
+  } catch (error: any) {
+    console.log(`Error en ${servicio} al hacer rollback:`, error.message)
   }
 }

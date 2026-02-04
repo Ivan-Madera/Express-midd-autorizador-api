@@ -1,3 +1,4 @@
+import { commitTransaction, manageTransaction, rollbackTransaction } from '../database/transaction'
 import { IJsonApiResponseGeneric } from '../entities/jsonApiResponses.entities'
 import { authErrors } from '../errors/auth.errors'
 import {
@@ -8,7 +9,7 @@ import {
   createUser,
   updateUser
 } from '../repositories/mutations/user.mutations'
-import { findOneSession } from '../repositories/queries/session.queries'
+import { findOneSessionGeneric } from '../repositories/queries/session.queries'
 import { findOneUser } from '../repositories/queries/user.queries'
 import { Codes } from '../utils/codeStatus'
 import { ErrorException } from '../utils/Exceptions'
@@ -97,10 +98,18 @@ export const refreshTokenService = async (
 ): Promise<IJsonApiResponseGeneric> => {
   let status = Codes.errorServer
 
+  const t = await manageTransaction()
+
   try {
     const hash = hashToken(refreshToken)
 
-    const session = await findOneSession(hash)
+    const session = await findOneSessionGeneric({
+      where: {
+        refresh_token_hash: hash
+      },
+      transaction: t,
+      lock: t.LOCK.UPDATE
+    })
     if (!session) {
       status = Codes.unauthorized
       throw new ErrorException(
@@ -116,8 +125,10 @@ export const refreshTokenService = async (
       if (session.replaced_by) {
         await updateSession(
           { revoked_at: new Date() },
-          { where: { user_id: session.user_id } }
+          { where: { user_id: session.user_id }, transaction: t }
         )
+
+        await commitTransaction(t)
 
         status = Codes.unauthorized
         throw new ErrorException(
@@ -136,7 +147,9 @@ export const refreshTokenService = async (
     }
 
     if (session.expires_at <= now) {
-      await updateSession({ revoked_at: now }, { where: { id: session.id } })
+      await updateSession({ revoked_at: now }, { where: { id: session.id }, transaction: t })
+
+      await commitTransaction(t)
 
       status = Codes.unauthorized
       throw new ErrorException(
@@ -157,17 +170,19 @@ export const refreshTokenService = async (
       ip: ip,
       user_agent: userAgent,
       expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    })
+    }, t)
 
     await updateSession(
       { revoked_at: now, replaced_by: newSession.id },
-      { where: { id: session.id } }
+      { where: { id: session.id }, transaction: t }
     )
 
     const accessToken = createAccessToken({
       uid: session.user_id,
       sid: newSession.id
     })
+
+    await commitTransaction(t)
 
     status = Codes.success
     return JsonApiResponseGeneric(
@@ -179,6 +194,7 @@ export const refreshTokenService = async (
       )
     )
   } catch (error) {
+    await rollbackTransaction(t, 'refreshTokenService')
     return JsonApiResponseGeneric(status, JsonApiResponseError(error, url))
   }
 }

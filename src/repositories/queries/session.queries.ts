@@ -1,4 +1,4 @@
-import { Op } from 'sequelize'
+import { Attributes, FindOptions, Op } from 'sequelize'
 import Session, { SessionInstance } from '../../database/models/Session.model'
 
 export const findOneSession = async (
@@ -11,6 +11,12 @@ export const findOneSession = async (
     },
     attributes
   })
+}
+
+export const findOneSessionGeneric = async (
+  options: FindOptions<Attributes<SessionInstance>>
+): Promise<SessionInstance | null> => {
+  return await Session.findOne(options)
 }
 
 
