@@ -91,7 +91,10 @@ export const checkBearer = async (req: any, res: any, next: any): Promise<any> =
 
     const token = auth.slice(7)
 
-    const payload = verify(token, secret) as any
+    const payload = verify(token, secret, {
+      issuer: 'auth.macropay.mx',
+      audience: 'macropay.mx'
+    }) as any
 
     const session = await findNotRevokedSession(payload.sid)
     if (!session) {

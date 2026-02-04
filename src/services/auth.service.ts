@@ -91,7 +91,9 @@ export const loginService = async (
 
 export const refreshTokenService = async (
   url: string,
-  refreshToken: string
+  refreshToken: string,
+  ip: string | null,
+  userAgent: string | null
 ): Promise<IJsonApiResponseGeneric> => {
   let status = Codes.errorServer
 
@@ -117,26 +119,28 @@ export const refreshTokenService = async (
       )
     }
 
-    const newRefreshToken = createRefreshToken()
-    const newRefreshHash = hashToken(newRefreshToken)
-
     await updateSession(
-      {
-        refresh_token_hash: newRefreshHash,
-        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-      },
+      { revoked_at: new Date() },
       { where: { id: session.id } }
     )
 
-    const accessToken = createAccessToken({
-      uid: session.user_id,
-      sid: session.id
+    const newRefreshToken = createRefreshToken()
+    const newRefreshHash = hashToken(newRefreshToken)
+
+    const newSession = await createSession({
+      user_id: session.user_id,
+      refresh_token_hash: newRefreshHash,
+      device_id: session.device_id,
+      device_type: session.device_type,
+      ip: ip,
+      user_agent: userAgent,
+      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
     })
 
-    await updateUser(
-      { last_login: new Date() },
-      { where: { id: session.user_id } }
-    )
+    const accessToken = createAccessToken({
+      uid: session.user_id,
+      sid: newSession.id
+    })
 
     status = Codes.success
     return JsonApiResponseGeneric(
@@ -219,7 +223,10 @@ export const registerService = async (
     }
 
     const passwordHash = await argon2.hash(password, {
-      type: argon2.argon2id
+      type: argon2.argon2id,
+      memoryCost: 19456,
+      timeCost: 2,
+      parallelism: 1
     })
 
     await createUser({ email, password_hash: passwordHash })

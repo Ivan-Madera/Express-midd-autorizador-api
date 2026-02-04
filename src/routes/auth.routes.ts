@@ -16,6 +16,7 @@ import {
   refreshTokenValidator,
   registerValidator
 } from '../validators/auth.validators'
+import { loginLimiter } from '../config/Limit'
 
 const router = Router()
 
@@ -81,7 +82,7 @@ const router = Router()
  */
 router.post(
   '/login',
-  [methodValidator, contentTypeValidator, ...loginValidator],
+  [methodValidator, contentTypeValidator, ...loginValidator, loginLimiter],
   login
 )
 
