@@ -91,8 +91,6 @@ router.post(
  * /api/v1/refresh_token:
  *   post:
  *     tags: ["[V1] Auth"]
- *     security:
- *     - bearerAuth: []
  *     description: Genera un nuevo token de acceso utilizando un token de refresco válido.
  *     requestBody:
  *       content:
