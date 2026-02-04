@@ -1,4 +1,8 @@
-import { commitTransaction, manageTransaction, rollbackTransaction } from '../database/transaction'
+import {
+  commitTransaction,
+  manageTransaction,
+  rollbackTransaction
+} from '../database/transaction'
 import { IJsonApiResponseGeneric } from '../entities/jsonApiResponses.entities'
 import { authErrors } from '../errors/auth.errors'
 import {
@@ -85,7 +89,7 @@ export const loginService = async (
       status,
       JsonApiResponseData('session', { accessToken, refreshToken }, url)
     )
-  } catch (error) {
+  } catch (error: unknown) {
     return JsonApiResponseGeneric(status, JsonApiResponseError(error, url))
   }
 }
@@ -147,7 +151,10 @@ export const refreshTokenService = async (
     }
 
     if (session.expires_at <= now) {
-      await updateSession({ revoked_at: now }, { where: { id: session.id }, transaction: t })
+      await updateSession(
+        { revoked_at: now },
+        { where: { id: session.id }, transaction: t }
+      )
 
       await commitTransaction(t)
 
@@ -162,15 +169,18 @@ export const refreshTokenService = async (
     const newRefreshToken = createRefreshToken()
     const newRefreshHash = hashToken(newRefreshToken)
 
-    const newSession = await createSession({
-      user_id: session.user_id,
-      refresh_token_hash: newRefreshHash,
-      device_id: session.device_id,
-      device_type: session.device_type,
-      ip: ip,
-      user_agent: userAgent,
-      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    }, t)
+    const newSession = await createSession(
+      {
+        user_id: session.user_id,
+        refresh_token_hash: newRefreshHash,
+        device_id: session.device_id,
+        device_type: session.device_type,
+        ip: ip,
+        user_agent: userAgent,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      },
+      t
+    )
 
     await updateSession(
       { revoked_at: now, replaced_by: newSession.id },
@@ -193,7 +203,7 @@ export const refreshTokenService = async (
         url
       )
     )
-  } catch (error) {
+  } catch (error: unknown) {
     await rollbackTransaction(t, 'refreshTokenService')
     return JsonApiResponseGeneric(status, JsonApiResponseError(error, url))
   }
@@ -216,7 +226,7 @@ export const logoutService = async (
       status,
       JsonApiResponseMessage('session', 'User logged out successfully', url)
     )
-  } catch (error) {
+  } catch (error: unknown) {
     return JsonApiResponseGeneric(status, JsonApiResponseError(error, url))
   }
 }
@@ -230,7 +240,7 @@ export const logoutAllService = async (
   try {
     await updateSession(
       { revoked_at: new Date() },
-      { where: { user_id: userId } }
+      { where: { user_id: userId, revoked_at: null } }
     )
 
     status = Codes.success
@@ -242,7 +252,7 @@ export const logoutAllService = async (
         url
       )
     )
-  } catch (error) {
+  } catch (error: unknown) {
     return JsonApiResponseGeneric(status, JsonApiResponseError(error, url))
   }
 }
@@ -279,7 +289,7 @@ export const registerService = async (
       status,
       JsonApiResponseMessage('session', 'User registered successfully', url)
     )
-  } catch (error) {
+  } catch (error: unknown) {
     return JsonApiResponseGeneric(status, JsonApiResponseError(error, url))
   }
 }

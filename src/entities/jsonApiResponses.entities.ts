@@ -1,11 +1,11 @@
 export interface IJsonApiData {
   type: string
   id: string
-  attributes: any
+  attributes: unknown
   links: {
     self: string
   }
-  relationships?: any
+  relationships?: unknown
 }
 
 export interface IJsonApiResponseData {

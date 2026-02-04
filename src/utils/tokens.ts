@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken'
 import * as crypto from 'crypto'
 import env from '../config/callEnv'
+import { IJWTPayload } from '../entities/payload.entities'
 
-export const createAccessToken = (payload: any) => {
+export const createAccessToken = (payload: IJWTPayload) => {
   return jwt.sign(payload, env.SECRET_KEY, {
     expiresIn: '15m',
     issuer: 'auth.macropay.mx',

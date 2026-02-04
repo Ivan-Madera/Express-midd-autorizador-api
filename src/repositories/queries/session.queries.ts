@@ -19,7 +19,6 @@ export const findOneSessionGeneric = async (
   return await Session.findOne(options)
 }
 
-
 export const findNotRevokedSession = async (
   id: number,
   attributes?: string[]

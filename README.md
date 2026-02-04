@@ -1,18 +1,63 @@
 # Midd Autorizador API 🛡️
 
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![Sequelize](https://img.shields.io/badge/Sequelize-52B0E7?style=for-the-badge&logo=sequelize&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+
 **Sistema de Autenticación y Autorización basado en TypeScript, Express y JSON:API.**
 
 Este proyecto es una API REST robusta y modular diseñada para gestionar la identidad de usuarios, sesiones seguras y control de acceso mediante tokens JWT. Implementa las mejores prácticas de desarrollo con **TypeScript** y sigue el estándar **JSON:API** para la estructura de respuestas.
+
+---
 
 ## 🚀 ¿Qué problema soluciona?
 
 Proporciona una capa de seguridad centralizada que puede ser reutilizada por múltiples servicios o clientes (Web/Mobile). Resuelve la complejidad de:
 
-- **Autenticación Segura**: Login, registro y hashing de contraseñas.
-- **Gestión de Sesiones**: Manejo de _Access Tokens_ y _Refresh Tokens_ para mantener sesiones seguras sin exponer credenciales permanentemente.
-- **Revocación de Acceso**: Funcionalidad para cerrar sesión en un dispositivo o en todos los dispositivos simultáneamente.
+- **Autenticación Segura**: Login, registro y hashing con Argon2.
+- **Gestión de Sesiones**: Manejo de _Access Tokens_ y _Refresh Tokens_ persistidos en DB.
+- **Revocación Proactiva**: Capacidad para invalidar sesiones instantáneamente sin esperar a que el JWT expire.
 
-### 🔥 Características de Seguridad y Sesión (Core Auth)
+### 📊 Flujo de Autenticación
+
+El siguiente diagrama muestra cómo interactúan el cliente, la API y la base de datos durante una sesión:
+
+```mermaid
+sequenceDiagram
+    participant C as Cliente
+    participant A as API (Auth Middleware)
+    participant D as Base de Datos (Sessions)
+
+    C->>A: POST /login (Credenciales)
+    A->>D: Verificar Usuario y Hashes
+    D-->>A: OK
+    A->>D: Crear Sesión (sid) y RefreshToken Hash
+    A-->>C: Retorna AccessToken (JWT con sid) + RefreshToken
+
+    Note over C,A: Uso de la API con Bearer Token
+
+    C->>A: GET /recurso-protegido (JWT)
+    A->>D: Verificar sid existe y session_revoked = 0
+    D-->>A: Sesión Válida
+    A-->>C: Recurso Entregado
+```
+
+---
+
+## 🖥️ Panel de Control (Dashboard)
+
+El proyecto incluye una **Landing Page interactiva** disponible en la ruta raíz (`/`). Este dashboard permite:
+
+- **Verificar el Estado**: Confirmar visualmente si el servicio está en línea.
+- **Métricas Rápidas**: Ver entorno (`ENV`), versión de Node y puerto activo.
+- **Utilidad de Copia**: Botón interactivo para copiar la URL base de la API al portapapeles.
+- **Cero Redirecciones**: Diseñado para ser informativo y seguro, sin enlaces externos.
+
+---
+
+## 🔥 Características de Seguridad (Core Auth)
 
 La implementación incluye controles estrictos y funcionalidades avanzadas:
 
@@ -122,39 +167,30 @@ src/
 
 ---
 
+### 🐳 Docker (Recomendado)
+
+Inicia todo el entorno (API + MySQL) con un solo comando:
+
+```bash
+docker-compose up -d --build
+```
+
+---
+
 ## 📖 Guía de Uso
 
-### Iniciar el Servidor
+### Endpoints Principales (Prefix: `/api/v1`)
 
-**Modo Desarrollo** (con recarga automática):
+| Método | Endpoint         | Descripción                                      | Requiere Auth      |
+| ------ | ---------------- | ------------------------------------------------ | ------------------ |
+| `POST` | `/login`         | Inicia sesión y retorna tokens.                  | No                 |
+| `POST` | `/register`      | Crea un nuevo usuario.                           | No                 |
+| `POST` | `/refresh_token` | Renueva el Access Token usando el Refresh Token. | No (Header AppKey) |
+| `POST` | `/logout`        | Cierra la sesión activa del dispositivo.         | **Sí (Bearer)**    |
+| `POST` | `/logout_all`    | Revoca todas las sesiones del usuario.           | **Sí (Bearer)**    |
 
-```bash
-npm run dev
-```
-
-**Modo Producción**:
-
-```bash
-npm run build
-npm start
-```
-
-### Documentación API (Swagger)
-
-Una vez iniciado el servidor (en modo no-producción), accede a la documentación interactiva:
-👉 **http://localhost:3000/docs**
-
-### Endpoints Principales
-
-La API expone sus recursos bajo el prefijo `/api/v1`.
-
-| Método | Endpoint              | Descripción                                      | Requiere Auth      |
-| ------ | --------------------- | ------------------------------------------------ | ------------------ |
-| `POST` | `/auth/login`         | Inicia sesión y retorna tokens.                  | No                 |
-| `POST` | `/auth/register`      | Crea un nuevo usuario.                           | No                 |
-| `POST` | `/auth/refresh_token` | Renueva el Access Token usando un Refresh Token. | No (Header AppKey) |
-| `POST` | `/auth/logout`        | Cierra la sesión actual (invalida el token).     | **Sí (Bearer)**    |
-| `POST` | `/auth/logout_all`    | Revoca todas las sesiones del usuario.           | **Sí (Bearer)**    |
+> [!NOTE]
+> La documentación extendida (Swagger) está disponible en `/docs` cuando el entorno `ENV` no es `production`.
 
 ---
 

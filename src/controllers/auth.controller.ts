@@ -37,7 +37,7 @@ export const login: Handler = async (req, res) => {
 
     status = authResponse.status
     return res.status(status).json(authResponse.response)
-  } catch (error) {
+  } catch (error: unknown) {
     return res.status(status).json(JsonApiResponseError(error, url))
   }
 }
@@ -55,7 +55,6 @@ export const refreshToken: Handler = async (req, res) => {
 
     const { refresh_token } = attributes
 
-
     const ip = req.ip ?? null
     const userAgent = req.get('user-agent') ?? null
 
@@ -68,7 +67,7 @@ export const refreshToken: Handler = async (req, res) => {
 
     status = authResponse.status
     return res.status(status).json(authResponse.response)
-  } catch (error) {
+  } catch (error: unknown) {
     return res.status(status).json(JsonApiResponseError(error, url))
   }
 }
@@ -84,7 +83,7 @@ export const logout: Handler = async (req, res) => {
 
     status = authResponse.status
     return res.status(status).json(authResponse.response)
-  } catch (error) {
+  } catch (error: unknown) {
     return res.status(status).json(JsonApiResponseError(error, url))
   }
 }
@@ -100,7 +99,7 @@ export const logoutAll: Handler = async (req, res) => {
 
     status = authResponse.status
     return res.status(status).json(authResponse.response)
-  } catch (error) {
+  } catch (error: unknown) {
     return res.status(status).json(JsonApiResponseError(error, url))
   }
 }
@@ -122,7 +121,7 @@ export const register: Handler = async (req, res) => {
 
     status = authResponse.status
     return res.status(status).json(authResponse.response)
-  } catch (error) {
+  } catch (error: unknown) {
     return res.status(status).json(JsonApiResponseError(error, url))
   }
 }

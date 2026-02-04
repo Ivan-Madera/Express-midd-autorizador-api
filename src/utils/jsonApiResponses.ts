@@ -10,9 +10,9 @@ import { Codes } from './codeStatus'
 
 export const JsonApiResponseData = (
   type: string,
-  attributes: any | any[],
+  attributes: unknown | unknown[],
   links: string,
-  relationships?: any
+  relationships?: unknown
 ): IJsonApiResponseData => {
   const uuid = uuidv4()
   const attributesArr = Array.isArray(attributes) ? attributes : [attributes]
@@ -62,15 +62,16 @@ export const JsonApiResponseMessage = (
 }
 
 export const JsonApiResponseError = (
-  error: any,
+  error: unknown,
   url: string
 ): IJsonApiResponseError => {
-  const code = error.code || 'ERROR-000'
-  const status = error.status || 500
+  const err = error as any
+  const code = err?.code || 'ERROR-000'
+  const status = err?.status || 500
   const pointer = url
-  const suggestions = error.suggestions || 'Please try again later'
-  const title = error.title || 'Internal Server Error'
-  const message = error.message || 'An unknown error occurred'
+  const suggestions = err?.suggestions || 'Please try again later'
+  const title = err?.title || 'Internal Server Error'
+  const message = err?.message || 'An unknown error occurred'
 
   return {
     code,

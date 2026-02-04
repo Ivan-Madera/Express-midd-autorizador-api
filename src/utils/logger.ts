@@ -53,6 +53,11 @@ export const MessageWarn = (
   logger.warn(`[${service}] | [${version}] | ${message}`)
 }
 
-export const LogWarn = (service: string, version: string, error: any): void => {
-  logger.warn(`[${service}] | [${version}] | ${error.message as string}`)
+export const LogWarn = (
+  service: string,
+  version: string,
+  error: unknown
+): void => {
+  const msg = (error as any)?.message || 'An unknown error occurred'
+  logger.warn(`[${service}] | [${version}] | ${msg as string}`)
 }

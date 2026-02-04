@@ -68,8 +68,9 @@ db.getConection()
   .then(() => {
     LogInfo('Conexion exitosa')
   })
-  .catch((error: any) => {
-    LogError(`Conexion fallida: ${error.message as string}`)
+  .catch((error: unknown) => {
+    const msg = (error as any)?.message || 'An unknown error occurred'
+    LogError(`Conexion fallida: ${msg as string}`)
   })
 
 export const sequelize = db.getSequelize()

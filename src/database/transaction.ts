@@ -22,7 +22,8 @@ export const rollbackTransaction = async (
 
   try {
     await transaction.rollback()
-  } catch (error: any) {
-    console.log(`Error en ${servicio} al hacer rollback:`, error.message)
+  } catch (error: unknown) {
+    const msg = (error as any)?.message || 'An unknown error occurred'
+    console.log(`Error en ${servicio} al hacer rollback:`, msg)
   }
 }

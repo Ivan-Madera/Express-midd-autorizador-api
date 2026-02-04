@@ -2,23 +2,24 @@ import axios from 'axios'
 
 interface IHttpResponse {
   status: number
-  data: any
+  data: unknown
 }
 
 export const getHttp = async (
   url: string,
-  options: any
+  options?: Record<string, unknown>
 ): Promise<IHttpResponse> => {
-  const response = await axios.get(url, options).catch((error: any) => {
-    if (!error.response) {
+  const response = await axios.get(url, options).catch((error: unknown) => {
+    const err = error as any
+    if (!err.response) {
       throw new Error(
         'Error de proveedor, favor de contactar con el administrador'
       )
     }
 
     return {
-      status: error.response.status,
-      data: error.response.data
+      status: err.response.status,
+      data: err.response.data
     }
   })
 
@@ -30,21 +31,24 @@ export const getHttp = async (
 
 export const postHttp = async (
   url: string,
-  body: any,
-  options: any
+  body?: Record<string, unknown>,
+  options?: Record<string, unknown>
 ): Promise<IHttpResponse> => {
-  const response = await axios.post(url, body, options).catch((error: any) => {
-    if (!error.response) {
-      throw new Error(
-        'Error de proveedor, favor de contactar con el administrador'
-      )
-    }
+  const response = await axios
+    .post(url, body, options)
+    .catch((error: unknown) => {
+      const err = error as any
+      if (!err.response) {
+        throw new Error(
+          'Error de proveedor, favor de contactar con el administrador'
+        )
+      }
 
-    return {
-      status: error.response.status,
-      data: error.response.data
-    }
-  })
+      return {
+        status: err.response.status,
+        data: err.response.data
+      }
+    })
 
   return {
     status: response.status,
@@ -54,21 +58,24 @@ export const postHttp = async (
 
 export const putHttp = async (
   url: string,
-  body: any,
-  options: any
+  body?: Record<string, unknown>,
+  options?: Record<string, unknown>
 ): Promise<IHttpResponse> => {
-  const response = await axios.put(url, body, options).catch((error: any) => {
-    if (!error.response) {
-      throw new Error(
-        'Error de proveedor, favor de contactar con el administrador'
-      )
-    }
+  const response = await axios
+    .put(url, body, options)
+    .catch((error: unknown) => {
+      const err = error as any
+      if (!err.response) {
+        throw new Error(
+          'Error de proveedor, favor de contactar con el administrador'
+        )
+      }
 
-    return {
-      status: error.response.status,
-      data: error.response.data
-    }
-  })
+      return {
+        status: err.response.status,
+        data: err.response.data
+      }
+    })
 
   return {
     status: response.status,

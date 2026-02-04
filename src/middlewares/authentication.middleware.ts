@@ -1,4 +1,6 @@
+import { NextFunction, Request, Response } from 'express'
 import env from '../config/callEnv'
+import { IJWTPayload } from '../entities/payload.entities'
 import { validationErrors } from '../errors/validation.errors'
 import { findNotRevokedSession } from '../repositories/queries/session.queries'
 import { Codes } from '../utils/codeStatus'
@@ -6,7 +8,11 @@ import { ErrorException } from '../utils/Exceptions'
 import { JsonApiResponseError } from '../utils/jsonApiResponses'
 import { verify } from 'jsonwebtoken'
 
-export const checkAuth = (req: any, res: any, next: any): any => {
+export const checkAuth = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Response | void => {
   const url = req.originalUrl
   let status = Codes.errorServer
 
@@ -23,12 +29,16 @@ export const checkAuth = (req: any, res: any, next: any): any => {
     }
 
     return next()
-  } catch (error) {
+  } catch (error: unknown) {
     return res.status(status).json(JsonApiResponseError(error, url))
   }
 }
 
-export const methodValidator = (req: any, res: any, next: any): void => {
+export const methodValidator = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Response | void => {
   const url = req.originalUrl
   let status = Codes.errorServer
 
@@ -45,12 +55,16 @@ export const methodValidator = (req: any, res: any, next: any): void => {
     }
 
     return next()
-  } catch (error) {
+  } catch (error: unknown) {
     return res.status(status).json(JsonApiResponseError(error, url))
   }
 }
 
-export const contentTypeValidator = (req: any, res: any, next: any): void => {
+export const contentTypeValidator = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Response | void => {
   const url = req.originalUrl
   let status = Codes.errorServer
 
@@ -67,12 +81,16 @@ export const contentTypeValidator = (req: any, res: any, next: any): void => {
     }
 
     return next()
-  } catch (error) {
+  } catch (error: unknown) {
     return res.status(status).json(JsonApiResponseError(error, url))
   }
 }
 
-export const checkBearer = async (req: any, res: any, next: any): Promise<any> => {
+export const checkBearer = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<Response | void> => {
   const url = req.originalUrl
   let status = Codes.errorServer
 
@@ -94,7 +112,7 @@ export const checkBearer = async (req: any, res: any, next: any): Promise<any> =
     const payload = verify(token, secret, {
       issuer: 'auth.macropay.mx',
       audience: 'macropay.mx'
-    }) as any
+    }) as IJWTPayload
 
     const session = await findNotRevokedSession(payload.sid)
     if (!session) {
@@ -110,7 +128,7 @@ export const checkBearer = async (req: any, res: any, next: any): Promise<any> =
     req.session_id = payload.sid
 
     return next()
-  } catch (error) {
+  } catch (error: unknown) {
     return res.status(status).json(JsonApiResponseError(error, url))
   }
 }
